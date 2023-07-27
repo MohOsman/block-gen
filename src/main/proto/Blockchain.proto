@@ -1,0 +1,24 @@
+
+syntax = "proto3";
+package se.mohosman.blockgen.grpc;
+option java_multiple_files = true;
+
+// Define the Block message representing a block in the blockchain
+message GrpcBlock {
+  int32 index = 1;
+  bytes hash = 2;
+  bytes previous_hash = 3;
+  uint64 timestamp = 4;
+  bytes data = 5;
+}
+
+// Define the Blockchain message representing the entire blockchain
+message Blockchain {
+  repeated GrpcBlock blocks = 1;
+}
+
+// Define the service for sending blocks
+service BlockchainService {
+  // Method for sending a Block and receiving an acknowledgment Block
+  rpc Send(GrpcBlock) returns (GrpcBlock);
+}

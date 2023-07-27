@@ -2,9 +2,13 @@ plugins {
 	id 'java'
 	id 'org.springframework.boot' version '3.1.2'
 	id 'io.spring.dependency-management' version '1.1.2'
-
+	// Add the Palantir Docker plugin with the desired version
+	id 'com.palantir.docker' version '0.35.0'
+	id "com.google.protobuf" version "0.9.4" // Replace with the version you want
 
 }
+
+def grpcVersion = '1.29.0'
 
 group = 'se.mohosman'
 version = '0.0.1-SNAPSHOT'
@@ -13,22 +17,64 @@ java {
 	sourceCompatibility = '17'
 }
 
+jar {
+	enabled = false
+	archiveClassifier = ''
+}
+
+
+protobuf {
+	protoc {
+		artifact = "com.google.protobuf:protoc:3.23.4"
+	}
+	plugins {
+		grpc {
+			artifact = 'io.grpc:protoc-gen-grpc-java:1.56.0'
+		}
+	}
+	generateProtoTasks {
+		all()*.plugins {
+			grpc {}
+		}
+	}
+}
+
 repositories {
 	mavenCentral()
 }
+docker {
+	name "blockgen"
+	dockerfile file('Dockerfile')
+	copySpec.from(jar).rename("block-gen-0.0.1-SNAPSHOT.*","app.jar")
+	buildArgs(['JAR_FILE': "app.jar"])
+}
+
 
 dependencies {
-	implementation 'org.springframework.boot:spring-boot-starter-data-mongodb-reactive'
+	implementation 'io.grpc:grpc-netty:1.56.0'
 	implementation 'org.springframework.boot:spring-boot-starter-webflux'
-	compileOnly 'org.projectlombok:lombok:1.18.28'
+	implementation 'io.grpc:grpc-protobuf:1.56.0'
+	implementation 'io.grpc:grpc-stub:1.56.0'
+	implementation 'net.devh:grpc-spring-boot-starter:2.14.0.RELEASE' exclude group: 'io.grpc', module: 'grpc-netty-shaded' // For both
+	compileOnly  'org.projectlombok:lombok:1.18.28'
+	compileOnly 'org.apache.tomcat:annotations-api:6.0.53'
+	compileOnly 'org.apache.tomcat:annotations-api:6.0.53'
 	annotationProcessor 'org.projectlombok:lombok:1.18.28'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework.boot:spring-boot-testcontainers'
 	testImplementation 'io.projectreactor:reactor-test'
 	testImplementation 'org.testcontainers:junit-jupiter'
 	testImplementation 'org.testcontainers:mongodb'
+
 }
 
 tasks.named('test') {
 	useJUnitPlatform()
 }
+
+
+// Define the Docker task using the com.palantir.docker plugin
+
+
+
+// Ensure the 'build' task depends on the 'docker' task

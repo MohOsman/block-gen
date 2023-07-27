@@ -1,9 +1,17 @@
 package se.mohosman.blockgen.service.impl;
 
-import com.fasterxml.jackson.databind.type.ClassStack;
-import lombok.val;
+import com.google.protobuf.ByteString;
+import io.grpc.Grpc;
+import io.grpc.stub.StreamObserver;
+import net.devh.boot.grpc.client.inject.GrpcClient;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import se.mohosman.blockgen.grpc.BlockchainServiceGrpc;
+import se.mohosman.blockgen.grpc.GrpcBlock;
 import se.mohosman.blockgen.hash.Hasher;
 import se.mohosman.blockgen.model.Block;
 import se.mohosman.blockgen.model.Blockchain;
@@ -13,14 +21,15 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.Timestamp;
 import java.time.Instant;
-import java.util.Date;
 import java.util.LinkedList;
-import java.util.Optional;
 
 @Service
 public class BlockServiceImplementation implements BlockService {
-
+// TODO Add logging
     private Blockchain blockchain;
+
+    @GrpcClient("block-sender")
+    private BlockchainServiceGrpc.BlockchainServiceBlockingStub blockingStub;
 
     public BlockServiceImplementation() {
         this.blockchain = new Blockchain(new LinkedList<>());
@@ -39,10 +48,13 @@ public class BlockServiceImplementation implements BlockService {
                 var hash = Hasher.createHash(block);
                 block.setHash(hash);
                 this.blockchain.blocks().add(block);
+                grpcClientSend(block);
                 return hash;
+
             } catch (NoSuchAlgorithmException e) {
                 throw new RuntimeException(e);
             }
+
         } else {
             return createGenesisBLock(data);
         }
@@ -61,7 +73,13 @@ public class BlockServiceImplementation implements BlockService {
         } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException(e);
         }
+        grpcClientSend(block);
         return block.getHash();
+    }
+
+    @Override
+    public Flux<Block> getBlockChain() {
+        return Flux.fromIterable(this.blockchain.blocks());
     }
 
     @Override
@@ -71,4 +89,24 @@ public class BlockServiceImplementation implements BlockService {
                 .findFirst());
     }
 
+    public void grpcClientSend(Block block) {
+        blockingStub.send(toGrpcBlock(block));
+    }
+    @Override
+    public void addBlock(Block block) {
+     this.blockchain.blocks().add(block);
+    }
+
+    private GrpcBlock toGrpcBlock(Block pojoBlock) {
+        return  GrpcBlock.newBuilder()
+                .setIndex(pojoBlock.getIndex())
+                .setHash(ByteString.copyFrom(pojoBlock.getHash()))
+                .setPreviousHash(ByteString.copyFrom(pojoBlock.getPreviousHash()))
+                .setTimestamp(pojoBlock.getTimestamp().getTime())
+                .setData(ByteString.copyFrom(pojoBlock.getData()))
+                .build();
+    }
 }
+
+
+
