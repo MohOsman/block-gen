@@ -51,12 +51,14 @@ docker {
 
 
 dependencies {
-	implementation 'io.grpc:grpc-netty:1.56.0'
 	implementation 'org.springframework.boot:spring-boot-starter-webflux'
-	implementation 'io.grpc:grpc-protobuf:1.56.0'
-	implementation 'io.grpc:grpc-stub:1.56.0'
-	implementation 'net.devh:grpc-spring-boot-starter:2.14.0.RELEASE' exclude group: 'io.grpc', module: 'grpc-netty-shaded' // For both
 	compileOnly  'org.projectlombok:lombok:1.18.28'
+	implementation 'org.apache.kafka:kafka-streams'
+	implementation group: 'com.google.code.gson', name: 'gson', version: '2.10.1'
+	implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.15.2'
+
+
+	implementation 'org.springframework.kafka:spring-kafka'
 	compileOnly 'org.apache.tomcat:annotations-api:6.0.53'
 	compileOnly 'org.apache.tomcat:annotations-api:6.0.53'
 	annotationProcessor 'org.projectlombok:lombok:1.18.28'
