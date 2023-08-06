@@ -37,9 +37,6 @@ The application will run on the default port 8080.
 
 The application uses a `BlockService` to handle blockchain-related operations. The `BlockService` is injected into the router class via constructor-based dependency injection. The `BlockService` encapsulates the logic for creating blocks, computing cryptographic hashes, and managing the blockchain.
 
-## HexUtils
-
-The application includes a utility class named `HexUtils`, which provides methods to convert byte arrays to hexadecimal strings and vice versa. This utility is used to convert cryptographic hash values between their byte representation and human-readable hexadecimal format.
 
 ## Dependencies
 
@@ -50,9 +47,6 @@ The Blockchain Generator App relies on the following libraries and frameworks:
 - Reactor: Provides the reactive types `Mono` and `Flux` for asynchronous processing.
 - Apache Maven: Manages project dependencies and builds the application.
 
-## Contributions
-
-Contributions to the project are welcome! If you find any issues or have suggestions for improvements, please create a new issue or submit a pull request.
 
 ## License
 
