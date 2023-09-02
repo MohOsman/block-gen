@@ -3,7 +3,7 @@
 
 [![Java CI with Gradle](https://github.com/MohOsman/block-gen/actions/workflows/gradle.yml/badge.svg)](https://github.com/MohOsman/block-gen/actions/workflows/gradle.yml)
 
-# Simple Blockchain Generator App
+# Blockchain Generator 
 [![Java CI with Gradle](https://github.com/MohOsman/block-gen/actions/workflows/gradle.yml/badge.svg)](https://github.com/MohOsman/block-gen/actions/workflows/gradle.yml)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
